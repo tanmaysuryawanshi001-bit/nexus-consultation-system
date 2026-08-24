@@ -1,0 +1,34 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "127.0.0.1",
+            "port": 3307,
+            "driver": "MySQL",
+            "name": "Local MySQL",
+            "database": "connect_db",
+            "username": "root",
+            "password": "rootpassword"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "sakura.proxy.rlwy.net",
+            "port": 45806,
+            "driver": "MySQL",
+            "name": "Railway Cloud MySQL",
+            "database": "railway",
+            "username": "root",
+            "password": "EwsmOxOYZoMhfoWgrYktyxosLIhPbgqL"
+        }
+    ]
+}
