@@ -1,6 +1,33 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+import cors from 'cors';
+
+const allowedOrigins = [
+  'https://nexus-consultation-system.vercel.app',
+  'https://nexus-consultation-system-git-main-tanmay-626a.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like curl, Postman, or mobile apps)
+    if (!origin) return callback(null, true);
+    
+    // Allow if exact match or if it's any Vercel preview deployment URL
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
+
+// Handle preflight requests for all routes
+app.options('*', cors());
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
