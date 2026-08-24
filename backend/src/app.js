@@ -23,7 +23,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/consultants', consultantRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
 
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`>>> ConnecT API active and listening at http://localhost:${PORT}`);
