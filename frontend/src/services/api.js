@@ -7,8 +7,8 @@ if (!baseURL.startsWith('http://') && !baseURL.startsWith('https://')) {
   baseURL = `https://${baseURL}`;
 }
 
-const api = axios.create({
+const API = axios.create({
   baseURL,
 });
 
-export default api;
+export default API;
