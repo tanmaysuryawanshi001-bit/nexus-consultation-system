@@ -1,14 +1,35 @@
 import axios from 'axios';
 
-let baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1';
+let rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1';
 
-// Ensure the URL always begins with http:// or https://
-if (!baseURL.startsWith('http://') && !baseURL.startsWith('https://')) {
-  baseURL = `https://${baseURL}`;
+// Ensure protocol is always present
+if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+  rawUrl = `https://${rawUrl}`;
 }
 
-const API = axios.create({
-  baseURL,
+const api = axios.create({
+  baseURL: rawUrl,
+  withCredentials: true,
 });
 
-export default API;
+// Request interceptor to attach JWT token if present
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const authAPI = {
+  login: (credentials) => api.post('/auth/login', credentials),
+  register: (userData) => api.post('/auth/register', userData),
+  getMe: () => api.get('/auth/me'),
+};
+
+export const consultantAPI = {
+  getAll: (params) => api.get('/consultants', { params }),
+  getById: (id) => api.get(`/consultants/${id}`),
+};
+
+export default api;
