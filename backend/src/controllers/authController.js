@@ -1,7 +1,6 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 
 // Register User
 const register = async (req, res) => {
@@ -20,13 +19,15 @@ const register = async (req, res) => {
 
     // Hash password with salt rounds = 10
     const passwordHash = await bcrypt.hash(password, 10);
-    const userId = crypto.randomUUID();
     const userRole = role === 'consultant' ? 'consultant' : 'client';
 
-    await pool.execute(
-      'INSERT INTO users (id, name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)',
-      [userId, name, email, passwordHash, userRole]
+    // Insert user (omit 'id' to allow MySQL auto_increment to assign it)
+    const [result] = await pool.execute(
+      'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)',
+      [name, email, passwordHash, userRole]
     );
+
+    const userId = result.insertId;
 
     const token = jwt.sign(
       { id: userId, email, role: userRole },
