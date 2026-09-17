@@ -21,23 +21,21 @@ exports.createBooking = async (req, res) => {
 
     const hourlyRate = parseFloat(consultants[0].hourly_rate);
     const totalPrice = (hourlyRate * (durationMinutes / 60)).toFixed(2);
-    const bookingId = `b_${Date.now()}`;
-
-    const bookingValues = [bookingId, clientId, consultantId, new Date(sessionDate), durationMinutes, totalPrice];
+    // Railway's live schema uses an integer auto-increment booking ID.
+    const bookingValues = [clientId, consultantId, new Date(sessionDate), durationMinutes, totalPrice];
+    let bookingId;
     try {
-      await pool.query(
-        `INSERT INTO bookings (id, client_id, consultant_id, session_date, duration_minutes, status, total_price, notes)
-         VALUES (?, ?, ?, ?, ?, 'confirmed', ?, ?)`,
-        [...bookingValues, notes]
-      );
+      const [result] = await pool.query(
+        `INSERT INTO bookings (client_id, consultant_id, session_date, duration_minutes, status, total_price, notes)
+         VALUES (?, ?, ?, ?, 'confirmed', ?, ?)`, [...bookingValues, notes]);
+      bookingId = result.insertId;
     } catch (insertError) {
       // Older Railway schemas may not have the optional notes column yet.
       if (insertError.code !== 'ER_BAD_FIELD_ERROR' || !insertError.message.includes("'notes'")) throw insertError;
-      await pool.query(
-        `INSERT INTO bookings (id, client_id, consultant_id, session_date, duration_minutes, status, total_price)
-         VALUES (?, ?, ?, ?, ?, 'confirmed', ?)`,
-        bookingValues
-      );
+      const [result] = await pool.query(
+        `INSERT INTO bookings (client_id, consultant_id, session_date, duration_minutes, status, total_price)
+         VALUES (?, ?, ?, ?, 'confirmed', ?)`, bookingValues);
+      bookingId = result.insertId;
     }
 
     return res.status(201).json({
