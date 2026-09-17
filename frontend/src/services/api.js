@@ -28,6 +28,7 @@ export const authAPI = {
 
 export const consultantAPI = {
   getAll: (params) => api.get('/consultants', { params }),
+  apply: (data) => api.post('/consultants/apply', data),
   getById: (id) => api.get(`/consultants/${id}`),
   updateProfile: (data) => api.put('/consultants/profile', data),
 };
