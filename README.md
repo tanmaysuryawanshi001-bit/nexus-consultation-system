@@ -91,7 +91,8 @@ The frontend is deployed on Vercel. The backend is a separate Node process and c
 │   ├── vercel.json                   SPA fallback rewrite
 │   └── package.json
 ├── Local MySQL.session.sql            Example local inspection queries
-└── Railway Cloud MySQL.session.sql   Example cloud inspection queries
+├── Railway Cloud MySQL.session.sql   Example cloud inspection queries
+└── seed-sample-consultants.sql       Repeatable seed for two demo consultants
 ```
 
 ## API endpoints
@@ -244,6 +245,7 @@ This project is an educational/prototype consultation platform and should receiv
 - **Frontend:** deploy `frontend/` to Vercel. `frontend/vercel.json` rewrites all paths to `index.html`, which supports browser refreshes on React Router routes.
 - **Backend:** deploy `backend/` to a Node-compatible host such as Railway or another managed service.
 - **Database:** configure a reachable MySQL instance and apply the project’s schema/migrations as appropriate. The checked-in SQL session files are inspection queries, not a complete schema migration.
+- **Demo data:** run `seed-sample-consultants.sql` in Railway’s MySQL query console to add two verified demo consultants. The script is idempotent and uses unique demo IDs.
 - **CORS:** update `allowedOrigins` in `backend/src/app.js` whenever the frontend domain changes.
 
 ## Contributing
