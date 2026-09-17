@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -33,7 +35,10 @@ const corsOptions = {
 
 // Global Middleware
 app.use(cors(corsOptions));
+app.use(helmet());
 app.use(express.json());
+
+app.use('/api/v1/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 100, standardHeaders: 'draft-8', legacyHeaders: false }));
 
 // Health Check
 app.get('/', (req, res) => {
@@ -44,6 +49,13 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/consultants', consultantRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
+
+app.use('/api/v1', (req, res) => res.status(404).json({ error: 'API endpoint not found.' }));
+app.use((err, req, res, next) => {
+  console.error('Unhandled server error:', err);
+  if (res.headersSent) return next(err);
+  res.status(err.status || 500).json({ error: 'Internal server error.' });
+});
 
 const PORT = process.env.PORT || 5001;
 

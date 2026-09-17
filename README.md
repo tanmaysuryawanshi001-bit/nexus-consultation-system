@@ -20,6 +20,10 @@ ConnecT is a full-stack consultation marketplace that helps clients discover ver
 - Automatic booking price calculation from hourly rate and duration.
 - Responsive navigation and responsive card layout for desktop and mobile screens.
 - Vercel single-page-application rewrite so React Router routes work after refresh.
+- Branded catch-all 404 page for unknown frontend routes.
+- Short-lived in-memory server-side caching for public consultant searches.
+- API 404 responses and a centralized Express error handler.
+- Helmet security headers and authentication rate limiting.
 
 ## Technology stack
 
@@ -199,6 +203,26 @@ Start the backend with `npm start` from `backend/`.
 - **Verified-provider gate:** public discovery excludes consultant profiles that are not marked verified.
 - **Required-field checks:** registration, login, and booking controllers reject incomplete required input.
 - **Client-side loading states:** submit buttons are disabled during authentication, consultant application, and booking requests to reduce duplicate submissions.
+- **Security headers:** Helmet is enabled for the Express API.
+- **Authentication throttling:** login and registration requests are rate-limited to 100 requests per 15 minutes per client address.
+
+### Caching and error handling
+
+- `GET /api/v1/consultants` uses a 60-second in-memory cache keyed by the complete request URL, including search and category parameters. Responses expose `X-Cache: HIT` or `MISS` and a matching `Cache-Control` header.
+- Consultant profile creation clears the cache so newly created data is not served after a stale entry remains.
+- Unknown frontend paths render the custom `NotFound` page; unknown API paths return a JSON `404` response.
+- Unexpected Express errors are logged server-side and return a generic `500` response without exposing internal error details.
+- The cache is process-local: it resets on server restart and is not shared across multiple backend instances. A shared Redis/cache service is recommended when scaling horizontally.
+
+### Lighthouse
+
+Lighthouse targets are defined in `.lighthouserc.json` for the live home and consultant pages. To run a local report, start the Vite preview server after building and run:
+
+```bash
+npx lighthouse http://localhost:4173 --output=html --output-path=./lighthouse-report.html --chrome-flags="--headless"
+```
+
+The frontend also includes `npm run lighthouse` with the same command (Lighthouse must be available through `npx` or installed globally).
 
 ### Important limitations and recommended hardening
 

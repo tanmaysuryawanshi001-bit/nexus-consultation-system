@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { clearCache } = require('../middleware/cacheMiddleware');
 
 exports.getConsultants = async (req, res) => {
   try {
@@ -86,6 +87,8 @@ exports.applyConsultant = async (req, res) => {
         );
       }
     }
+
+    clearCache();
 
     return res.status(201).json({ success: true, message: 'Consultant profile created successfully.' });
   } catch (error) {

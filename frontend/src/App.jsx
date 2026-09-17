@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import FindConsultants from './pages/FindConsultants';
 import BecomeConsultant from './pages/BecomeConsultant';
 import Login from './pages/Login';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
             <Route path="/find-consultants" element={<FindConsultants />} />
             <Route path="/become-a-consultant" element={<BecomeConsultant />} />
             <Route path="/login" element={<Login />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </div>
