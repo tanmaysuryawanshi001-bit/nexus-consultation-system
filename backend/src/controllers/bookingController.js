@@ -23,11 +23,22 @@ exports.createBooking = async (req, res) => {
     const totalPrice = (hourlyRate * (durationMinutes / 60)).toFixed(2);
     const bookingId = `b_${Date.now()}`;
 
-    await pool.query(
-      `INSERT INTO bookings (id, client_id, consultant_id, session_date, duration_minutes, status, total_price, notes)
-       VALUES (?, ?, ?, ?, ?, 'confirmed', ?, ?)`,
-      [bookingId, clientId, consultantId, new Date(sessionDate), durationMinutes, totalPrice, notes]
-    );
+    const bookingValues = [bookingId, clientId, consultantId, new Date(sessionDate), durationMinutes, totalPrice];
+    try {
+      await pool.query(
+        `INSERT INTO bookings (id, client_id, consultant_id, session_date, duration_minutes, status, total_price, notes)
+         VALUES (?, ?, ?, ?, ?, 'confirmed', ?, ?)`,
+        [...bookingValues, notes]
+      );
+    } catch (insertError) {
+      // Older Railway schemas may not have the optional notes column yet.
+      if (insertError.code !== 'ER_BAD_FIELD_ERROR' || !insertError.message.includes("'notes'")) throw insertError;
+      await pool.query(
+        `INSERT INTO bookings (id, client_id, consultant_id, session_date, duration_minutes, status, total_price)
+         VALUES (?, ?, ?, ?, ?, 'confirmed', ?)`,
+        bookingValues
+      );
+    }
 
     return res.status(201).json({
       success: true,

@@ -46,6 +46,16 @@ CREATE TABLE IF NOT EXISTS bookings (
   FOREIGN KEY (consultant_id) REFERENCES consultant_profiles(id) ON DELETE CASCADE
 );
 
+-- Add the optional notes field when upgrading an older bookings table.
+SET @notes_column_exists = (
+  SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'bookings' AND COLUMN_NAME = 'notes'
+);
+SET @add_notes_sql = IF(@notes_column_exists = 0, 'ALTER TABLE bookings ADD COLUMN notes TEXT NULL', 'SELECT 1');
+PREPARE add_notes_statement FROM @add_notes_sql;
+EXECUTE add_notes_statement;
+DEALLOCATE PREPARE add_notes_statement;
+
 -- 5. Seed Consultants & Users
 INSERT INTO users (id, name, email, password_hash, role, avatar_url) VALUES
 ('u1', 'James D.', 'james@connect.com', '$2a$10$abcdefghijklmnopqrstuvwxyz123456', 'consultant', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'),
